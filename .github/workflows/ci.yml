@@ -2,25 +2,51 @@ name: CI
 
 on:
   push:
+    branches: ["main", "master"]
   pull_request:
+    branches: ["main", "master"]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    timeout-minutes: 15
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
 
-      - name: Install
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest
 
-      - name: Run tests
+      - name: Run unit tests
         env:
           MLFLOW_TRACKING_URI: file:./mlruns
-        run: pytest -q
+        run: |
+          pytest -q
+
+      - name: Smoke run (train → score → monitor on sample data)
+        env:
+          MLFLOW_TRACKING_URI: file:./mlruns
+        run: |
+          python scripts/generate_logs.py
+          python -m src.pipeline.train --data data/raw/all.log --experiment ci-exp
+          python -m src.pipeline.score --data data/raw/all.log --experiment ci-exp --topk 10
+          python -m src.pipeline.monitor --experiment ci-exp
+
+      - name: Upload outputs (for debugging)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-outputs
+          path: |
+            outputs/
+            mlruns/

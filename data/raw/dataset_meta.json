@@ -1,0 +1,10 @@
+{
+  "n_events": 6000,
+  "n_coredns": 2500,
+  "n_aws_node": 2500,
+  "total": 11000,
+  "anomaly_ratio_events": 0.08,
+  "anomaly_ratio_coredns": 0.06,
+  "anomaly_ratio_aws_node": 0.05,
+  "generated_utc": "2026-01-24T11:04:06.419618Z"
+}
