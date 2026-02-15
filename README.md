@@ -9,7 +9,8 @@ This project addresses the problem of log anomaly detection in Kubernetes enviro
 
 ### 2. Project Type and Objectives
 This project is primarily **Innovation-driven**, with a strong emphasis on system design, prototyping, and evaluation, as required by the AI Systems Engineering guidelines.
-Objectives:
+
+**Objectives:**
 - Design an end-to-end AI system for anomaly detection in Kubernetes/EKS logs
 - Implement a reproducible MLOps batch pipeline
 - Apply unsupervised machine learning to log data
@@ -63,37 +64,37 @@ Objectives:
 
 1. **Train job**
 
-Input: 
-- data/raw/*.log
+  Input: 
+  - data/raw/*.log
 
-Output:
-- models/vectorizer.pkl
-- models/isoforest.pkl
-- models/metadata.json (training date, data hash, parameters)
+  Output:
+  - models/vectorizer.pkl
+  - models/isoforest.pkl
+  - models/metadata.json (training date, data hash, parameters)
 
-Also logs to MLflow:
-- params: n_estimators, ngram_range, max_features
-- metrics: reconstruction proxy or score distribution stats
-- artifacts: the model files + metadata
+  Also logs to MLflow:
+  - params: n_estimators, ngram_range, max_features
+  - metrics: reconstruction proxy or score distribution stats
+  - artifacts: the model files + metadata
 
 2. **Score job**
 
-Input: new logs (file or exported CloudWatch logs)
+  Input: new logs (file or exported CloudWatch logs)
 
-Output:
-- outputs/anomalies.csv (topK anomalous logs, line, normalized, score)
-- outputs/summary.json (count, anomaly_rate, top patterns)
+  Output:
+  - outputs/anomalies.csv (topK anomalous logs, line, normalized, score)
+  - outputs/summary.json (count, anomaly_rate, top patterns)
 
 3. **Monitor job**
 
-Input: 
-- outputs/summary.json + previous runs (stored locally or in MLflow)
+  Input: 
+  - outputs/summary.json + previous runs (stored locally or in MLflow)
 
-Track:
-anomaly_rate (if it spikes, something changed)
+  Track:
+  anomaly_rate (if it spikes, something changed)
 
-log volume
-token/vocabulary drift proxy (e.g., fraction of tokens unseen during training)
+  log volume
+  token/vocabulary drift proxy (e.g., fraction of tokens unseen during training)
 
 ## Steps to run MLflow UI locally
 
@@ -172,7 +173,7 @@ python -m src.pipeline.train \
 python -m src.pipeline.score \
   --data data/raw/all.log \
   --experiment ci-k8s-log-anomaly \
-  --topk 50
+  --topk 100
 ```
 
 3. Monitor
@@ -187,12 +188,75 @@ Then refresh MLflow UI and open the experiment:
 
 ## Continuous Integration (GitHub Actions)
 
-The CI pipeline:
-- Installs dependencies
-- runs unit tests
-- executes a full pipeline smoke test (generate → train → score → monitor)
+This project uses **GitHub Actions** to automatically validate the Log Anomaly Detection System on every push and pull request.
 
-This ensures that changes to the codebase do not break core functionality and that the system remains executable from scratch.
+The CI pipeline ensures that the entire anomaly detection workflow is reproducible and executable from scratch in a clean environment.
+
+### What the CI Pipeline Does?
+
+On every commit, GitHub Actions performs the following steps:
+
+1. **Checkout Repository**
+   - Pulls the latest code from the repository.
+
+2. **Setup Python Environment**
+   - Uses Python 3.11
+   - Creates a clean virtual environment
+   - Upgrades pip
+
+3. **Install Dependencies**
+  
+   pip install -r requirements.txt
+
+4. **Run Unit Tests**
+```
+pytest -q
+```
+- Validates log parsing
+- Validates normalization logic
+- Ensures deterministic behavior of core components
+
+5. **Run End-to-End Smoke Test** 
+The pipeline executes a full minimal workflow: executes a full pipeline smoke test (generate → train → score → monitor)
+```
+python scripts/generate_logs.py
+python -m src.pipeline.train --data data/raw/all.log --experiment ci-k8s-log-anomaly
+python -m src.pipeline.score --data data/raw/all.log --model-path models/latest.pkl
+python -m src.pipeline.monitor
+```
+
+This verifies:
+- Log generation works
+- Model training completes successfully
+- Anomaly scoring produces outputs
+- Monitoring artifacts are created
+
+#### Artifacts Generated in CI:
+
+The pipeline uploads artifacts such as:
+
+mlruns/
+
+outputs/
+- anomalies.csv
+- summary.json
+- monitor.json
+
+### CI as an MLOps Component
+
+This CI pipeline represents the first stage of MLOps maturity:
+
+- Automated testing
+- Automated pipeline validation
+- Reproducibility enforcement
+
+In production-grade systems, this would extend to:
+
+- Model registry integration
+- Automated deployment
+- Data drift detection triggers
+- Continuous retraining workflows
+
 
 
 
