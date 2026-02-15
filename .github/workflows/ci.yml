@@ -41,7 +41,7 @@ jobs:
         run: |
           python scripts/generate_logs.py
           python -m src.pipeline.train --data data/raw/all.log --experiment ci-exp
-          python -m src.pipeline.score --data data/raw/all.log --experiment ci-exp --topk 50
+          python -m src.pipeline.score --data data/raw/all.log --experiment ci-exp --topk 300
           python -m src.pipeline.monitor --experiment ci-exp
 
       - name: Upload outputs (for debugging)

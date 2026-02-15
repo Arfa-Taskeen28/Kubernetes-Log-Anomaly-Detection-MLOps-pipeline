@@ -1,11 +1,11 @@
 # Kubernetes & AWS EKS Log Anomaly Detection System
 
-1.  Introduction
+### 1.  Introduction
 Modern cloud-native infrastructures such as Kubernetes and AWS Elastic Kubernetes Service (EKS) generate large volumes of heterogeneous logs originating from application workloads, system components, and control-plane events. These logs are essential for diagnosing failures, ensuring reliability, and maintaining service availability.
 However, manual inspection of logs is infeasible at scale, and rule-based alerting systems often suffer from poor generalization and high false-positive rates. This motivates the use of machine learning–based anomaly detection, capable of identifying unusual log patterns that may correspond to failures, misconfigurations, or security-relevant events.
 This project addresses the problem of log anomaly detection in Kubernetes environments, with a focus on system-level engineering aspects, including reproducibility, monitoring, and operational readiness.
 
-2. Project Type and Objectives
+### 2. Project Type and Objectives
 This project is primarily **Innovation-driven**, with a strong emphasis on system design, prototyping, and evaluation, as required by the AI Systems Engineering guidelines.
 Objectives:
 - Design an end-to-end AI system for anomaly detection in Kubernetes/EKS logs
@@ -14,7 +14,7 @@ Objectives:
 - Track experiments and artifacts using MLflow
 - Provide monitoring signals suitable for operational environments
 
-3. Functiona Requirements:
+### 3. Functiona Requirements:
 - Ingest Kubernetes log data
 - Normalize high-cardinality log attributes (IPs, IDs, hashes)
 - Train an unsupervised anomaly detection model
@@ -40,47 +40,49 @@ Objectives:
 - **MLflow** provides experiment tracking and artifact versioning for reproducibility
 
 ## Repository Structure
+
+```text
+.
 ├── data/
-│ └── raw/ # generated logs
-├── outputs/ # anomalies.csv, summary.json, monitor.json
+│   └── raw/                # generated logs
+├── outputs/                # anomalies.csv, summary.json, monitor.json
 ├── scripts/
-│ └── generate_logs.py # synthetic Kubernetes/EKS log generator
+│   └── generate_logs.py    # synthetic Kubernetes/EKS log generator
 ├── src/
-│ ├── lib/ # parsing, modeling utilities
-│ └── pipeline/ # train, score, monitor pipelines
-├── tests/ # unit tests + pipeline smoke tests
-├── .github/workflows/ci.yml # GitHub Actions CI
+│   ├── lib/                # parsing, modeling utilities
+│   └── pipeline/           # train, score, monitor pipelines
+├── tests/                  # unit tests + pipeline smoke tests
+├── .github/workflows/ci.yml  # GitHub Actions CI
 ├── requirements.txt
 └── README.md
+```
 
 ## MLOps Pipeline Steps:
 
-1) Train job
-
-Input: data/raw/*.log
+1) **Train job**
+Input: 
+- data/raw/*.log
 
 Output:
-models/vectorizer.pkl
-models/isoforest.pkl
-models/metadata.json (training date, data hash, parameters)
+- models/vectorizer.pkl
+- models/isoforest.pkl
+- models/metadata.json (training date, data hash, parameters)
 
 Also logs to MLflow:
-
 - params: n_estimators, ngram_range, max_features
 - metrics: reconstruction proxy or score distribution stats
 - artifacts: the model files + metadata
 
-2) Score job
-
+2) **Score job**
 Input: new logs (file or exported CloudWatch logs)
 
 Output:
-outputs/anomalies.csv (topK anomalous logs, line, normalized, score)
-outputs/summary.json (count, anomaly_rate, top patterns)
+- outputs/anomalies.csv (topK anomalous logs, line, normalized, score)
+- outputs/summary.json (count, anomaly_rate, top patterns)
 
-3) Monitor job
-
-Input: outputs/summary.json + previous runs (stored locally or in MLflow)
+3) **Monitor job**
+Input: 
+- outputs/summary.json + previous runs (stored locally or in MLflow)
 
 Track:
 anomaly_rate (if it spikes, something changed)
@@ -91,7 +93,7 @@ token/vocabulary drift proxy (e.g., fraction of tokens unseen during training)
 ## Steps to run MLflow UI locally
 
 ### PreRequisites
-- Navigate to Project folder. Make sure you see: requirements.txt, src\, scripts\
+- Navigate to Project folder. Make sure you see: requirements.txt, src\ , scripts\
 - create virtual environment: 
 ```
 python -m venv .venv
@@ -157,7 +159,7 @@ python -c "import mlflow; print(mlflow.get_tracking_uri())"
 Expected Output:
 http://127.0.0.1:5000
 
-### Step 4: ### Step 5 — Run the `ci-k8s-log-anomaly` Experiment Locally
+### Step 4: Run the `ci-k8s-log-anomaly` Experiment Locally
 
 Execute the following commands from the repository root:
 
