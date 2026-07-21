@@ -40,7 +40,7 @@ This project is primarily **Innovation-driven**, with a strong emphasis on syste
 - **Normalization** reduces noise from unique identifiers (IPs, IDs, pod hashes)
 - **TF-IDF** provides a fast, interpretable vector representation for log lines
 - **Isolation Forest** performs unsupervised anomaly scoring without labels
-- **MLflow** provides experiment tracking and artifact versioning for reproducibility
+- **MLflow** provides experiment tracking and artifact versioning for reproducibility.
 
 ## Repository Structure
 
