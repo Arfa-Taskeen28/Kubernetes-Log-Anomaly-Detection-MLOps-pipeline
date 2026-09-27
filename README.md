@@ -133,6 +133,7 @@ This creates:
 From the repository root directory, run:
 
 ```
+$env:MLFLOW_ALLOW_FILE_STORE = "true"
 mlflow server \
   --backend-store-uri ./mlruns \
   --default-artifact-root ./mlruns \
@@ -154,6 +155,7 @@ Set the `MLFLOW_TRACKING_URI` environment variable so MLflow points to your loca
 
 #### For Windows PowerShell:
 ```powershell
+$env:MLFLOW_ALLOW_FILE_STORE = "true"
 $env:MLFLOW_TRACKING_URI = "http://127.0.0.1:5000"
 ```
 
