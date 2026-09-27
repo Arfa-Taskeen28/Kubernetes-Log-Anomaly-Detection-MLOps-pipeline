@@ -3,4 +3,4 @@ pandas
 scikit-learn
 regex
 joblib
-mlflow
+mlflow==3.10.0
